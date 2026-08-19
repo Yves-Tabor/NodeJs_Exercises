@@ -34,7 +34,7 @@ const server = http.createServer((req, res)=>{
         let body = ""
 
         req.on("data", chunk => body += chunk)
-        req.data("end", ()=>{
+        req.on("end", ()=>{
             fs.writeFile("output", body, (err)=>{
                 if(err){
                     res.writeHead(500, {"Content-Type": "text/plain"})
