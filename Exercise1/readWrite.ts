@@ -14,43 +14,42 @@
 // he server returns appropriate status codes and error messages in case of an
 // y file operation failures
 
-import http from "http";
-import fs from "fs";
+import http from "http"
+import fs from "fs"
 
 const port = 5000;
 const server = http.createServer((req, res)=>{
     if(req.method === "GET"){
-        fs.readFile("output.text", "utf-8", (err, data)=>{
-            if (err){
-                res.end("Error reading input.txt");
+        fs.readFile("input.txt", "utf-8", (err, data)=>{
+            if(err){
+                res.end("Error reading file");
                 return;
             }
-            res.writeHead(200, { "Content-Type": "text/plain" });
-            res.end(data);
-        });
+            res.writeHead(200, { "Content-Type": "text/plain"});
+            res.end("File successfully written");
+        })
     }
     else if(req.method === "POST"){
-        let body = "";
-
-        req.on("data", chunk=> (body += chunk));
+        let body = ""
+        
+        req.on("data", chunk=> body+= chunk);
         req.on("end", ()=>{
             fs.writeFile("output.txt", body, (err)=>{
                 if(err){
-                    res.end("Error writing output.txt");
+                    res.end("Error reading file");
                     return;
                 }
                 res.writeHead(201);
-                res.end("Data successfully written in output.txt");
+                res.end("File successfully written");
             })
         })
-    }else{
+    }
+    else{
         res.writeHead(405);
-        res.end("Method not allowed!")
+        res.end("Method not allowed !!!");
     }
 })
 
-
-server.
-    listen(port, ()=>{
-        console.log(`Server running on port ${port}`);
-    })
+server.listen(port, ()=>{
+    console.log("Server running on port ", port);
+})
