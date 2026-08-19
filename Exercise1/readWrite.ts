@@ -14,45 +14,43 @@
 // he server returns appropriate status codes and error messages in case of an
 // y file operation failures
 
-import fs from "fs"
-import express from "express"
+import http from "http";
+import fs from "fs";
 
-const app = express();
 const port = 5000;
+const server = http.createServer((req, res)=>{
+    if(req.method === "GET"){
+        fs.readFile("output.text", "utf-8", (err, data)=>{
+            if (err){
+                res.end("Error reading input.txt");
+                return;
+            }
+            res.writeHead(200, { "Content-Type": "text/plain" });
+            res.end(data);
+        });
+    }
+    else if(req.method === "POST"){
+        let body = "";
 
-app.use(express.json());
-
-app.get("/", (req, res)=>{
-    fs.readFile("input.txt", "utf-8", (err, data)=>{
-        if(err){
-            res.status(400).json({
-                error: err,
+        req.on("data", chunk=> (body += chunk));
+        req.on("end", ()=>{
+            fs.writeFile("output.txt", body, (err)=>{
+                if(err){
+                    res.end("Error writing output.txt");
+                    return;
+                }
+                res.writeHead(201);
+                res.end("Data successfully written in output.txt");
             })
-            return;
-        }
-        res.status(200).json({data});
-    })
+        })
+    }else{
+        res.writeHead(405);
+        res.end("Method not allowed!")
+    }
 })
 
-app.post("/", (req, res)=>{
-    const { data } = req.body;
-    fs.writeFile("output.txt", data, (err)=>{
-        if(err){
-            res.status(400).json(err)
-            return;
-        }
-        res.status(200).json({
-            message: "Data written to file",
-            data: data,
-        })
+
+server.
+    listen(port, ()=>{
+        console.log(`Server running on port ${port}`);
     })
-});
-
-
-app.listen(port, () => {
-    console.log(`Server is running on https://localhost:${port}`);
-});
-
-
-
-
