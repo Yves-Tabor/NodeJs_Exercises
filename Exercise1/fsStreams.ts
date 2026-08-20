@@ -11,12 +11,12 @@ const server = http.createServer((req, res)=>{
             res.end("Error reading file");
         })
 
-        readStream("open", ()=>{
+        readStream.on("open", ()=>{
             res.writeHead(200, {"Content-Type": "text/plain"});
             readStream.pipe(res);
         })
     }
-    else if(req.method === (POST)){
+    else if(req.method === "POST"){
         const writeStream = fs.createWriteStream("output.txt");
         writeStream.on("error", (err)=>{
             console.log(err);
@@ -25,9 +25,11 @@ const server = http.createServer((req, res)=>{
         })
 
         writeStream.on("finish", ()=>{
-            writeHead(201, {"Content-Type": "text/plain"});
-            req.pipe(writeStream);
+            res.writeHead(201, {"Content-Type": "text/plain"});
+            res.end("File successfully written")
         })
+
+        req.pipe(writeStream);
     }
     else{
         res.writeHead(405, {"Content-Type": "text/plain"});
